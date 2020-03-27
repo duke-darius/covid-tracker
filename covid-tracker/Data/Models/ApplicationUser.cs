@@ -15,5 +15,7 @@ namespace covid_tracker.Data.Models
 
         public bool IsConfirmed { get; set; }
         public DateTime ConfirmationDate { get; set; }
+
+        public int AgeInYears { get; set; }
     }
 }

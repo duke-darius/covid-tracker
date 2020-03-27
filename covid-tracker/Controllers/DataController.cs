@@ -16,10 +16,17 @@ using Newtonsoft.Json;
 
 namespace covid_tracker.Controllers
 {
+
+    /*
+     *   /Data    = Index
+     *   /Data/Upload   =  Upload
+     * 
+     */
     public class DataController : Controller
     {
         public ApplicationDbContext ctx { get; set; }
         public ApplicationUser User { get; set; }
+
         public DataController(ApplicationDbContext _ctx, IHttpContextAccessor httpContextAccessor)
         {
             ctx = _ctx;
@@ -28,6 +35,8 @@ namespace covid_tracker.Controllers
             {
                 User = ctx.Users.FirstOrDefault(x => x.Id == uid);
             }
+            User.AgeInYears = 22;
+            ctx.SaveChanges();
         }
 
         public IActionResult Index()
@@ -44,7 +53,8 @@ namespace covid_tracker.Controllers
 
         public IActionResult Details(int id)
         {
-            var model = ctx.DataSet.Include(x=> x.DataPoints).FirstOrDefault(x => x.Id == id);
+            //var model = ctx.DataSet.Include(x=> x.DataPoints).FirstOrDefault(x => x.Id == id);
+            var model = ctx.DataSet.FirstOrDefault(x => x.Id == id);
             return View(model);
         }
 
@@ -56,7 +66,7 @@ namespace covid_tracker.Controllers
 
             var data = await ReadAsStringAsync(files[0]);
 
-            var obj = JsonConvert.DeserializeObject<DtoLocationHistoryFormat>(data);
+            DtoLocationHistoryFormat obj = JsonConvert.DeserializeObject<DtoLocationHistoryFormat>(data);
 
             var newDataset = new DataSet()
             {
@@ -69,8 +79,11 @@ namespace covid_tracker.Controllers
 
             ctx.DataSet.Add(newDataset);
             ctx.SaveChanges();
+
             Console.WriteLine("Total entries: " + obj.Locations.Count());
+
             var locations = obj.Locations.Where(x => x.Timestamp >= cutOffDate).ToList();
+
             Console.WriteLine("Filtered entries: " + locations.Count());
             
             foreach (var point in locations)
@@ -85,12 +98,7 @@ namespace covid_tracker.Controllers
                     VerticalAccuracy = point.VerticalAccuracy,
                     Activities = new List<DataActivity>()
                 };
-                if (dp.Timestamp <= cutOffDate)
-                {
-                    //Console.WriteLine("continuing");
-                    continue;
-                }
-                
+
                 if (point.Activities != null)
                 {
                     foreach (var ac in point.Activities)
@@ -107,8 +115,6 @@ namespace covid_tracker.Controllers
                 }
                 Console.WriteLine("Finished prepping object: " + newDataset.DataPoints.Count);
                 newDataset.DataPoints.Add(dp);
-
-                
             }
             ctx.DataSet.Update(newDataset);
             ctx.SaveChanges();

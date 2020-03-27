@@ -4,7 +4,21 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>You Data</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        <h3>Infectivity</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <form method="post">
+            <label for="IsConfirmedCheck">Are you a confirmed coronavirus patient?</label>
+            <input type="checkbox" value="@User.Identity.IsAuthenticated" />
+        </form>
+    </div>
+</div>
 
 <p>
     <a asp-action="Upload">Upload New</a>
