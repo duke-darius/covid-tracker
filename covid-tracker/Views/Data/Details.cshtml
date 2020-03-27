@@ -1,0 +1,41 @@
+﻿@model covid_tracker.Data.Models.DataSet
+
+@{
+    ViewData["Title"] = "View";
+}
+
+<h1>View</h1>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<div>
+
+    <h4>DataSet</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+    <div class="row">
+        <div class="col-md-12">
+            
+            @foreach (var row in Model.DataPoints)
+            {
+                <dl class="row">
+                    <dt class="col-sm-2">
+                        @row.Timestamp
+                    </dt>
+                    <dd class="col-sm-10">
+                        @row.Location.ToString();
+                    </dd>
+                </dl>
+            }
+        </div>
+    </div>
+
+</div>
+
