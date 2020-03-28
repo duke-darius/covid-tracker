@@ -35,11 +35,11 @@ namespace covid_tracker
                     x=> x.UseNetTopologySuite()));
             services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.Configure<FormOptions>(x =>
-            {
-                x.ValueLengthLimit = int.MaxValue;
-                x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart
-            });
+            //services.Configure<FormOptions>(x =>
+            //{
+            //    x.ValueLengthLimit = int.MaxValue;
+            //    x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart
+            //});
             services.AddControllersWithViews();
             services.AddRazorPages();
         }

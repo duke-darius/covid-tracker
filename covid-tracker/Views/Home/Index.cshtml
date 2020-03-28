@@ -1,8 +1,24 @@
-﻿@{
+﻿@inject ApplicationDbContext ctx
+@inject IHttpContextAccessor httpCtx
+
+@{
     ViewData["Title"] = "Home Page";
+    var user = ctx.Users.FirstOrDefault(x => x.Id == httpCtx.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
 }
+@if (user != null)
+{
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Welcome @user.UserName</h1>
 </div>
+}
+@if (!ctx.DataSet.Any(x => x.User == user) )
+{ 
+<div class="row">
+    <div class="col-md-12">
+        You haven't uploaded any DataSets yet! <a asp-controller="Data" asp-action="Index">Do so here...</a>
+    </div>
+</div>
+}
+
+

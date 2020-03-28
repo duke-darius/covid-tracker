@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using covid_tracker.Data;
 using covid_tracker.Data.Dto;
 using covid_tracker.Data.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace covid_tracker.Controllers
      *   /Data/Upload   =  Upload
      * 
      */
+     [Authorize]
     public class DataController : Controller
     {
         public ApplicationDbContext ctx { get; set; }
@@ -58,7 +60,9 @@ namespace covid_tracker.Controllers
             return View(model);
         }
 
+        [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
         [DisableRequestSizeLimit]
+        [Consumes("multipart/form-data")] // for Zip files with form data
         [HttpPost]
         public async Task<IActionResult> UploadFile(List<IFormFile> files)
         {
