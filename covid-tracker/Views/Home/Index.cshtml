@@ -1,7 +1,7 @@
 ﻿@inject ApplicationDbContext ctx
 @inject IHttpContextAccessor httpCtx
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAh5Iaqwk4vLU1oA3Sj5LckVH3mjcDT3M&callback=initMap&libraries=visualization"
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAh5Iaqwk4vLU1oA3Sj5LckVH3mjcDT3M&callback=initMap"
         type="text/javascript"></script>
 <style>
     /* Set the size of the div element that contains the map */
@@ -55,13 +55,7 @@ else
             var heatMapPoints = []
 
             data.points.forEach(point => {
-                heatMapPoints.push(new google.maps.LatLng(point.latitude, point.longitude ));
-            });
-
-            var heatmap = new google.maps.visualization.HeatmapLayer({
-              data: heatMapPoints,
-              dissipating: false,
-              map: map
+                var marker = new google.maps.Marker({ position: { lng: point.latitude, lat: point.longitude }, map: map });
             });
             
         })
