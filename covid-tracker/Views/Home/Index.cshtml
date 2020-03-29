@@ -51,9 +51,17 @@ else
             console.log(data);
             var map = new google.maps.Map(
                 document.getElementById('map'), { zoom: 4, center: { lng: data.center.latitude, lat: data.center.longitude } });
-            // The marker, positioned at Uluru
+
+            var heatMapPoints = []
+
             data.points.forEach(point => {
-                var marker = new google.maps.Marker({ position: { lng: point.latitude, lat: point.longitude }, map: map });
+                heatMapPoints.push(new google.maps.LatLng(point.latitude, point.longitude ));
+            });
+
+            var heatmap = new google.maps.visualization.HeatmapLayer({
+              data: heatMapPoints,
+              dissipating: false,
+              map: map
             });
             
         })
