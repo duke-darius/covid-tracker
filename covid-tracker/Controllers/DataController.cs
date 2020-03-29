@@ -98,17 +98,23 @@ namespace covid_tracker.Controllers
         }
 
         [HttpPost]
+        public IActionResult UpdateInfectivity([FromBody] InfectivityUpdate update)
+        {
+
+
+            return Ok();
+        }
+
+        [HttpPost]
         public async Task<JsonResult> Calculate()
         {
             Dictionary<DataPoint, List<DataPoint>> dict = new Dictionary<DataPoint, List<DataPoint>>();
 
-            var infectedSet = ctx.DataPoints.Where(x => x.User.IsConfirmed).ToList();
-            var infectedDate = ctx.Users.FirstOrDefault(x => x.IsConfirmed).ConfirmationDate;
-            var infectedEndDate = infectedDate.AddDays(14);
+            var infectedSet = ctx.DataPoints.Where(x => x.User.IsConfirmed && x.Timestamp > x.User.ConfirmationDate && x.TimestampExit < x.User.ConfirmationDate.AddDays(14)).ToList();
+            //var infectedDate = ctx.Users.Min(x => x.).ConfirmationDate;
+            //var infectedEndDate = infectedDate.AddDays(14);
 
-            infectedSet = infectedSet.Where(x => 
-                x.Timestamp > infectedDate && 
-                x.TimestampExit < infectedEndDate).ToList();
+            infectedSet = infectedSet.ToList();
             var intersectPoints = ctx.DataPoints.Where(
                 x => x.User == User).ToList().Intersect(infectedSet, new DataPointComparer()).ToList();
 

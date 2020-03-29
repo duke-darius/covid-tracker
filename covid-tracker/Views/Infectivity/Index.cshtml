@@ -1,0 +1,31 @@
+﻿@model covid_tracker.Data.Models.ApplicationUser
+
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <form method="get" asp-controller="Infectivity" asp-action="Update">
+            <div class="form-group">
+                <label for="IsConfirmedCheck">Are you a confirmed coronavirus patient?</label>
+                <input class="form-check" type="checkbox" name="isConfirmed" @(Model.IsConfirmed ? "checked" : "") />
+
+                <label for="confirmationStartDate">Confirmation date</label>
+                <input class="form-control" type="date" id="confirmationStartDate" name="confirmationDate" value="@Model.ConfirmationDate.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="form-group">
+
+                <label for="IsSymptomaticCheck">Are symptomatic of coronavirus?</label>
+                <input class="form-check" type="checkbox" id="IsSymptomaticCheck" name="isSymptomatic" @(Model.IsSymptomatic ? "checked" : "") />
+
+                <label for="symptomStartDate">Symptoms start date</label>
+                <input class="form-control" type="date" name="symptomStartDate" value="@Model.SymptomStartDate.ToString("yyyy-MM-dd")" />
+
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
