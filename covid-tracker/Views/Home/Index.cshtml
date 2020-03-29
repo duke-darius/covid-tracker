@@ -48,15 +48,19 @@ else
         }
 
         fetchData().then((data) => {
-            console.log(data);
-            var map = new google.maps.Map(
-                document.getElementById('map'), { zoom: 4, center: { lng: data.center.latitude, lat: data.center.longitude } });
+            if (data.center == null) {
+                document.getElementById("map").innerHTML = "<span class='text-muted'>You haven't had any contact with any confirmed patients (That we know of)</span>";
+            } else {
+                console.log(data);
+                var map = new google.maps.Map(
+                    document.getElementById('map'), { zoom: 4, center: { lng: data.center.latitude, lat: data.center.longitude } });
 
-            var heatMapPoints = []
+                var heatMapPoints = []
 
-            data.points.forEach(point => {
-                var marker = new google.maps.Marker({ position: { lng: point.latitude, lat: point.longitude }, map: map });
-            });
+                data.points.forEach(point => {
+                    var marker = new google.maps.Marker({ position: { lng: point.latitude, lat: point.longitude }, map: map });
+                });
+            }
             
         })
 

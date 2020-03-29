@@ -120,17 +120,24 @@ namespace covid_tracker.Controllers
 
 
             var result = new InfectedResponse();
-            result.Center = new InfectedPoint()
+            if (intersectPoints.Count != 0)
             {
-                Latitude = intersectPoints.Sum(x=>x.Location.X) / intersectPoints.Count,
-                Longitude = intersectPoints.Sum(x=>x.Location.Y) / intersectPoints.Count
-            };
-            result.Points = intersectPoints.Select(x => 
-                new InfectedPoint() { Latitude = x.Location.X, Longitude = x.Location.Y }).ToList();
-            //var intersectPoints = ctx.DataPoints.Where(
-            //    x => x.User == User).ToList().Where(x => infectedSet.Any(y => x.Location.Distance(y.Location) < 0.001)).ToList();
-
-            return Json(result);
+                result.Center = new InfectedPoint()
+                {
+                    Latitude = intersectPoints.Sum(x => x.Location.X) / intersectPoints.Count,
+                    Longitude = intersectPoints.Sum(x => x.Location.Y) / intersectPoints.Count
+                };
+                result.Points = intersectPoints.Select(x =>
+                    new InfectedPoint() { Latitude = x.Location.X, Longitude = x.Location.Y }).ToList();
+                //var intersectPoints = ctx.DataPoints.Where(
+                //    x => x.User == User).ToList().Where(x => infectedSet.Any(y => x.Location.Distance(y.Location) < 0.001)).ToList();
+                return Json(result);
+            }
+            else
+            {
+                return Json(new InfectedResponse() { Center = null, Points = new List<InfectedPoint>() }); ;
+            }
+            
         }
 
         [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
