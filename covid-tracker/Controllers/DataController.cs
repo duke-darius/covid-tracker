@@ -34,7 +34,7 @@ namespace covid_tracker.Controllers
                 return false;
 
             //Check whether the products' properties are equal.
-            return x.Location.Distance(y.Location) < 0.001;
+            return x.Location.Distance(y.Location) < 0.0000001 && (x.Timestamp - y.Timestamp ) < new TimeSpan(0,15,0);
         }
 
         // If Equals() returns true for a pair of objects 
@@ -97,13 +97,14 @@ namespace covid_tracker.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Calculate()
+        [HttpPost]
+        public async Task<JsonResult> Calculate()
         {
             Dictionary<DataPoint, List<DataPoint>> dict = new Dictionary<DataPoint, List<DataPoint>>();
 
             var infectedSet = ctx.DataPoints.Where(x => x.User.IsConfirmed).ToList();
             var infectedDate = ctx.Users.FirstOrDefault(x => x.IsConfirmed).ConfirmationDate;
-            var infectedEndDate = infectedDate.AddDays(28);
+            var infectedEndDate = infectedDate.AddDays(14);
 
             infectedSet = infectedSet.Where(x => 
                 x.Timestamp > infectedDate && 
@@ -111,10 +112,19 @@ namespace covid_tracker.Controllers
             var intersectPoints = ctx.DataPoints.Where(
                 x => x.User == User).ToList().Intersect(infectedSet, new DataPointComparer()).ToList();
 
+
+            var result = new InfectedResponse();
+            result.Center = new InfectedPoint()
+            {
+                Latitude = intersectPoints.Sum(x=>x.Location.X) / intersectPoints.Count,
+                Longitude = intersectPoints.Sum(x=>x.Location.Y) / intersectPoints.Count
+            };
+            result.Points = intersectPoints.Select(x => 
+                new InfectedPoint() { Latitude = x.Location.X, Longitude = x.Location.Y }).ToList();
             //var intersectPoints = ctx.DataPoints.Where(
             //    x => x.User == User).ToList().Where(x => infectedSet.Any(y => x.Location.Distance(y.Location) < 0.001)).ToList();
 
-            return Ok(JsonConvert.SerializeObject(intersectPoints));
+            return Json(result);
         }
 
         [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]

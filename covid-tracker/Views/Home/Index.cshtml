@@ -1,6 +1,15 @@
 ﻿@inject ApplicationDbContext ctx
 @inject IHttpContextAccessor httpCtx
 
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAh5Iaqwk4vLU1oA3Sj5LckVH3mjcDT3M&callback=initMap"
+        type="text/javascript"></script>
+<style>
+    /* Set the size of the div element that contains the map */
+    #map {
+        height: 400px; /* The height is 400 pixels */
+        width: 100%; /* The width is the width of the web page */
+    }
+</style>
 @{
     ViewData["Title"] = "Home Page";
     var user = ctx.Users.FirstOrDefault(x => x.Id == httpCtx.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -8,17 +17,54 @@
 @if (user != null)
 {
 
-<div class="text-center">
-    <h1 class="display-4">Welcome @user.UserName</h1>
-</div>
-}
-@if (!ctx.DataSet.Any(x => x.User == user) )
-{ 
-<div class="row">
-    <div class="col-md-12">
-        You haven't uploaded any DataSets yet! <a asp-controller="Data" asp-action="Index">Do so here...</a>
+    <div class="text-center">
+        <h1 class="display-4">Welcome @user.UserName</h1>
     </div>
-</div>
+}
+@if (!ctx.DataSet.Any(x => x.User == user))
+{
+    <div class="row">
+        <div class="col-md-12">
+            You haven't uploaded any DataSets yet! <a asp-controller="Data" asp-action="Index">Do so here...</a>
+        </div>
+    </div>
+}
+else
+{
+
+
+    <div id="map"></div>
+
+    <script>
+        // Initialize and add the map
+        function initMap() {
+            // The location of Uluru
+            //var uluru = { lat: -25.344, lng: 131.036 };
+            //// The map, centered at Uluru
+            //var map = new google.maps.Map(
+            //    document.getElementById('map'), { zoom: 4, center: uluru });
+            //// The marker, positioned at Uluru
+            //var marker = new google.maps.Marker({ position: uluru, map: map });
+        }
+
+        fetchData().then((data) => {
+            console.log(data);
+            var map = new google.maps.Map(
+                document.getElementById('map'), { zoom: 4, center: { lng: data.center.latitude, lat: data.center.longitude } });
+            // The marker, positioned at Uluru
+            data.points.forEach(point => {
+                var marker = new google.maps.Marker({ position: { lng: point.latitude, lat: point.longitude }, map: map });
+            });
+            
+        })
+
+        async function fetchData() {
+            var res = await fetch("/Data/Calculate", {
+                method: 'POST'
+            });
+            return await res.json(); // parses JSON response into native JavaScript objects
+        }
+    </script>
 }
 
 
