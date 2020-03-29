@@ -19,12 +19,48 @@ using Newtonsoft.Json;
 namespace covid_tracker.Controllers
 {
 
+
+    class DataPointComparer : IEqualityComparer<DataPoint>
+    {
+        // Products are equal if their names and product numbers are equal.
+        public bool Equals(DataPoint x, DataPoint y)
+        {
+
+            //Check whether the compared objects reference the same data.
+            if (Object.ReferenceEquals(x, y)) return true;
+
+            //Check whether any of the compared objects is null.
+            if (Object.ReferenceEquals(x, null) || Object.ReferenceEquals(y, null))
+                return false;
+
+            //Check whether the products' properties are equal.
+            return x.Location.Distance(y.Location) < 0.001;
+        }
+
+        // If Equals() returns true for a pair of objects 
+        // then GetHashCode() must return the same value for these objects.
+
+        int IEqualityComparer<DataPoint>.GetHashCode(DataPoint obj)
+        {
+            var x = ((int)Math.Round(obj.Location.X * 10000000));
+            var y = ((int)Math.Round(obj.Location.Y * 10000000));
+
+            return CantorPair(x, y);
+        }
+
+        public int CantorPair(int x, int y)
+        {
+            return (((x + y) * (x + y + 1)) / 2) + y;
+        }
+    }
+
+
     /*
      *   /Data    = Index
      *   /Data/Upload   =  Upload
      * 
      */
-     [Authorize]
+    [Authorize]
     public class DataController : Controller
     {
         public ApplicationDbContext ctx { get; set; }
@@ -64,25 +100,21 @@ namespace covid_tracker.Controllers
         public async Task<IActionResult> Calculate()
         {
             Dictionary<DataPoint, List<DataPoint>> dict = new Dictionary<DataPoint, List<DataPoint>>();
-            int i = 0;
-            foreach(var point in ctx.DataPoints.Where(x=>x.User == User))
-            {
-                var otherPoints = ctx.DataPoints.Where(x =>
-                    x.User != User &&
-                    x.Timestamp > point.Timestamp.AddMinutes(-1) &&
-                    x.Timestamp < point.Timestamp.AddMinutes(1) && 
-                    x.Location.IsWithinDistance(point.Location, 10)
-                    ).ToList();
-                if(otherPoints.Count != 0)
-                {
-                    dict.Add(point, otherPoints);
-                }
-                i++;
 
-                
+            var infectedSet = ctx.DataPoints.Where(x => x.User.IsConfirmed).ToList();
+            var infectedDate = ctx.Users.FirstOrDefault(x => x.IsConfirmed).ConfirmationDate;
+            var infectedEndDate = infectedDate.AddDays(28);
 
-            }
-            return Ok(JsonConvert.SerializeObject(dict));
+            infectedSet = infectedSet.Where(x => 
+                x.Timestamp > infectedDate && 
+                x.TimestampExit < infectedEndDate).ToList();
+            var intersectPoints = ctx.DataPoints.Where(
+                x => x.User == User).ToList().Intersect(infectedSet, new DataPointComparer()).ToList();
+
+            //var intersectPoints = ctx.DataPoints.Where(
+            //    x => x.User == User).ToList().Where(x => infectedSet.Any(y => x.Location.Distance(y.Location) < 0.001)).ToList();
+
+            return Ok(JsonConvert.SerializeObject(intersectPoints));
         }
 
         [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3</TargetFramework>
     <UserSecretsId>aspnet-covid_tracker-13C9BA92-50C6-4FA1-824B-C009D91E689C</UserSecretsId>
     <RootNamespace>covid_tracker</RootNamespace>
   </PropertyGroup>
