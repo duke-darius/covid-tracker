@@ -15,8 +15,10 @@ namespace covid_tracker.Data.Models
         public int Id { get; set; }
 
         public DateTime Timestamp { get; set; }
+        public DateTime TimestampExit { get; set; }
 
         public Point Location { get; set; }
+        
 
         public int Accuracy { get; set; }
         public int Altitude { get; set; }
